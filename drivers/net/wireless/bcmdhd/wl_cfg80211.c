@@ -4591,18 +4591,19 @@ wl_cfg80211_check_DFS_channel(struct wl_priv *wl, wl_af_params_t *af_params,
 			bss_list = wl->bss_list;
 			bi = next_bss(bss_list, bi);
 			for_each_bss(bss_list, bi, i) {
+				chanspec_t chanspec = wl_chspec_driver_to_host(bi->chanspec);
 
 				WL_DBG(("BSSID1=" MACDBG ", BSSID2=" MACDBG "\n",
 					MAC2STRDBG((char *)&af_params->BSSID),
 					MAC2STRDBG((char *)&bi->BSSID)));
 
 				WL_DBG(("CTL channel=%d, chanspec channel=%d, chanspec=%d\n",
-					bi->ctl_ch, CHSPEC_CHANNEL(bi->chanspec), bi->chanspec));
+					bi->ctl_ch, CHSPEC_CHANNEL(chanspec), chanspec));
 				if (memcmp((char *)&bi->BSSID,
 					(char *)&af_params->BSSID, ETHER_ADDR_LEN) == 0) {
-					if (CHSPEC_IS5G(bi->chanspec) &&
+					if (CHSPEC_IS5G(chanspec) &&
 						(bi->ctl_ch ?
-						bi->ctl_ch : CHSPEC_CHANNEL(bi->chanspec))
+						bi->ctl_ch : CHSPEC_CHANNEL(chanspec))
 						== af_params->channel) {
 						result = true;	/* do not block the action frame */
 						break;
@@ -4618,6 +4619,8 @@ wl_cfg80211_check_DFS_channel(struct wl_priv *wl, wl_af_params_t *af_params,
 	WL_DBG(("result=%s", result?"true":"false"));
 	return result;
 }
+
+
 #endif /* WL11U */
 
 static bool
